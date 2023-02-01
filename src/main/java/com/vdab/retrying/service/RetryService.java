@@ -8,6 +8,7 @@ import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -15,7 +16,7 @@ import org.springframework.web.client.HttpClientErrorException;
 public class RetryService {
     final KszClient kszClient;
 
-    @Retryable(maxAttemptsExpression = "${retry.max-attempts}", value = HttpClientErrorException.class, backoff = @Backoff(delayExpression = "${retry.max-delay}"))
+    @Retryable(maxAttemptsExpression = "${retry.max-attempts}", value = HttpServerErrorException.class, backoff = @Backoff(delayExpression = "${retry.max-delay}"))
     public void retryTest() {
         log.info("retryTest service executed");
         kszClient.executeClient();
@@ -27,6 +28,8 @@ public class RetryService {
      */
     @Recover
     public void recoverFromExceptionAfterRetries(HttpClientErrorException ex) {
+        // add custom exception with data added to know which repertoriumactie must be triggered
+        // ExterneRepertoriumActieGefaaldException
         log.warn("Persist ERROR RepertoriumActie");
     }
 }
