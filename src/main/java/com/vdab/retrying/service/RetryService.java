@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Service;
 public class RetryService {
     final KszClient kszClient;
 
-    @Retryable(maxAttempts = 3, value = RuntimeException.class, backoff = @Backoff(delay = 5000))
+    @Retryable(maxAttemptsExpression = "${retry.max-attempts}", value = HttpClientErrorException.class, backoff = @Backoff(delayExpression = "${retry.max-delay}"))
     public void retryTest() {
         log.info("retryTest service executed");
         kszClient.executeClient();
